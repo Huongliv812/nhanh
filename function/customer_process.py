@@ -1,11 +1,22 @@
 from function.base_function import create_bitable_record, create_bitable_field, get_bitable_fields
 
 def process_customer(client, table_id, customer_data):
+    # Danh sách các trường cần thiết
+    required_fields = ['customer_id', 'customer_name', 'customer_phone', 'customer_email', 
+                       'orders_count', 'total_spent', 'state', 'created_at', 'updated_at', 
+                       'last_order_id', 'last_order_name', 'last_order_date', 'address_id', 
+                       'address1', 'address2', 'city', 'province', 'district', 'ward', 
+                       'zipcode', 'phone', 'default']
+
     # Lấy danh sách các fields hiện có trong Bitable
     bitable_fields = get_bitable_fields(client, table_id)
-    if not bitable_fields:
-        print("Could not retrieve Bitable fields. Exiting.")
-        return
+    
+    # Kiểm tra và chỉ tạo những trường cần thiết nếu chúng chưa tồn tại
+    for field in required_fields:
+        if field not in bitable_fields:
+            new_field = create_bitable_field(client, table_id, field)
+            if new_field:
+                bitable_fields[field] = new_field
 
     # Xử lý từng khách hàng
     for customer in customer_data.get('customers', []):
@@ -27,7 +38,7 @@ def process_customer(client, table_id, customer_data):
         records = []
         addresses = customer.get("addresses", [])
         for address in addresses:
-            record = customer_info.copy()
+            record = customer_info.copy()  # Sao chép dữ liệu chung của khách hàng
             record.update({
                 "address_id": address.get("id"),
                 "address1": address.get("address1", ""),
@@ -37,23 +48,11 @@ def process_customer(client, table_id, customer_data):
                 "district": address.get("district", ""),
                 "ward": address.get("ward", ""),
                 "zipcode": address.get("zip", ""),
-                "phone": address.get("phone", ""),
-                "default": address.get("default", False)
+                "phone": address.get("phone", ""),  # Thêm field "phone"
+                "default": address.get("default", False)  # Thêm field "default"
             })
             records.append(record)
 
-        # Lấy danh sách các cột từ records
-        df_columns = list(records[0].keys()) if records else []
-
-        # Kiểm tra và tạo fields trong Bitable nếu chúng chưa tồn tại
-        for df_col in df_columns:
-            if df_col not in bitable_fields:
-                new_field = create_bitable_field(client, table_id, df_col)
-                if new_field:
-                    bitable_fields[df_col] = new_field
-            else:
-                print(f"Field '{df_col}' already exists in Bitable.")
-
-        # Chèn dữ liệu vào Bitable
+        # Chèn dữ liệu vào Bitable cho mỗi địa chỉ của khách hàng
         for record in records:
-            create_bitable_record(client, table_id, record, df_columns, bitable_fields)
+            create_bitable_record(client, table_id, record, list(record.keys()), bitable_fields)

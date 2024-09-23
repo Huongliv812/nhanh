@@ -1,15 +1,24 @@
-from function.base_function import create_bitable_record, create_bitable_field, get_bitable_fields
+from function.base_function import create_bitable_field, get_bitable_fields, create_bitable_record
 
 def process_order(client, table_id, order_data):
+    # Danh sách các trường cần thiết
+    required_fields = ['order_id', 'order_number', 'customer_name', 'customer_phone',
+                       'customer_email', 'address1', 'province', 'district', 'ward',
+                       'financial_status', 'fulfillment_status', 'gateway', 'total_price',
+                       'product_name', 'product_quantity', 'product_price']
+
     # Lấy danh sách các fields hiện có trong Bitable
     bitable_fields = get_bitable_fields(client, table_id)
-    if not bitable_fields:
-        print("Could not retrieve Bitable fields. Exiting.")
-        return
+    
+    # Kiểm tra và chỉ tạo những trường cần thiết nếu chúng chưa tồn tại
+    for field in required_fields:
+        if field not in bitable_fields:
+            new_field = create_bitable_field(client, table_id, field)
+            if new_field:
+                bitable_fields[field] = new_field
 
     processed_data = []
 
-    # Duyệt qua từng đơn hàng trong order_data
     for order in order_data.get('orders', []):
         order_id = order['id']
         order_number = order['order_number']
@@ -27,14 +36,12 @@ def process_order(client, table_id, order_data):
         district = shipping_address.get('district', '')
         ward = shipping_address.get('ward', '')
 
-        # Xử lý từng mặt hàng trong đơn hàng
         for item in order.get('line_items', []):
             product_name = item.get('title', 'Unknown')
             product_quantity = item.get('quantity', 1)
             product_price = item.get('price', 0)
 
-            # Tạo bản ghi từ dữ liệu
-            record = {
+            processed_data.append({
                 'order_id': order_id,
                 'order_number': order_number,
                 'customer_name': customer_name,
@@ -51,23 +58,8 @@ def process_order(client, table_id, order_data):
                 'product_name': product_name,
                 'product_quantity': product_quantity,
                 'product_price': product_price
-            }
-            processed_data.append(record)
+            })
 
-            # Lấy danh sách tên cột từ bản ghi
-            df_columns = list(record.keys())
-
-            # Kiểm tra và tạo fields trong Bitable nếu chúng chưa tồn tại
-            for df_col in df_columns:
-                if df_col not in bitable_fields:
-                    # Tạo field trong Bitable
-                    new_field = create_bitable_field(client, table_id, df_col)
-                    if new_field:
-                        bitable_fields[df_col] = new_field
-                else:
-                    print(f"Field '{df_col}' already exists in Bitable.")
-
-            # Chèn dữ liệu vào Bitable
-            create_bitable_record(client, table_id, record, df_columns, bitable_fields)
-
-    print(f"Processed {len(processed_data)} records.")
+    # Chèn dữ liệu vào Bitable
+    for record in processed_data:
+        create_bitable_record(client, table_id, record, list(record.keys()), bitable_fields)
