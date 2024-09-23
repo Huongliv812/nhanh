@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sync Customer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h2>Sync Customer</h2>
+            </div>
+            <div class="card-body">
+                <form id="customer-form" method="POST">
+                    <div class="form-group">
+                        <label for="APP_TOKEN">APP TOKEN:</label>
+                        <input type="text" class="form-control" id="APP_TOKEN" name="APP_TOKEN" placeholder="Enter your App Token" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PERSONAL_BASE_TOKEN">PERSONAL BASE TOKEN:</label>
+                        <input type="text" class="form-control" id="PERSONAL_BASE_TOKEN" name="PERSONAL_BASE_TOKEN" placeholder="Enter your Personal Base Token" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="TABLE_ID">TABLE ID:</label>
+                        <input type="text" class="form-control" id="TABLE_ID" name="TABLE_ID" placeholder="Enter Table ID" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="HARAVAN_TOKEN">HARAVAN TOKEN:</label>
+                        <input type="text" class="form-control" id="HARAVAN_TOKEN" name="HARAVAN_TOKEN" placeholder="Enter Haravan Token" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="created_at_min">Created After (YYYY-MM-DD):</label>
+                            <input type="date" class="form-control" id="created_at_min" name="created_at_min">
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label for="created_at_max">Created Before (YYYY-MM-DD):</label>
+                            <input type="date" class="form-control" id="created_at_max" name="created_at_max">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="limit">Limit:</label>
+                        <input type="number" class="form-control" id="limit" name="limit" placeholder="Limit (e.g., 50)">
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-block mt-3">Sync Customer</button>
+                    <div id="loading" class="text-center mt-3" style="display:none;">
+                        <span class="spinner-border text-success"></span> Loading...
+                    </div>
+                </form>
+
+                <div id="result" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('#customer-form').on('submit', function(e){
+                e.preventDefault();  // Ngăn chặn form submit thông thường
+                $('#loading').show(); // Hiển thị "Loading..." khi form được submit
+                
+                $.ajax({
+                    url: '/contact_form', // URL mà form POST đến
+                    type: 'POST',
+                    data: $(this).serialize(), // Lấy tất cả dữ liệu từ form
+                    success: function(response){
+                        $('#loading').hide(); // Ẩn "Loading..." khi hoàn tất
+                        $('#result').html(response); // Hiển thị kết quả trả về trên trang
+                        console.log(response); // Ghi kết quả ra console để debug
+                    },
+                    error: function(error){
+                        $('#loading').hide();
+                        $('#result').html('An error occurred.');
+                        console.error('Error:', error); // Ghi lỗi ra console để debug
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
