@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-
 <body>
     <div class="container mt-5">
         <div class="card shadow">
@@ -32,37 +31,33 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="HARAVAN_TOKEN">HARAVAN TOKEN:</label>
-                        <input type="text" class="form-control" id="HARAVAN_TOKEN" name="HARAVAN_TOKEN" placeholder="Enter Haravan Token" required>
+                        <label for="NHANH_TOKEN">NHANH TOKEN:</label>
+                        <input type="text" class="form-control" id="NHANH_TOKEN" name="NHANH_TOKEN" placeholder="Enter Nhanh.vn Token" required>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="created_at_min">Created After (YYYY-MM-DD):</label>
-                            <input type="date" class="form-control" id="created_at_min" name="created_at_min">
-                        </div>
-
-                        <div class="form-group col-md-6">
-                            <label for="created_at_max">Created Before (YYYY-MM-DD):</label>
-                            <input type="date" class="form-control" id="created_at_max" name="created_at_max">
-                        </div>
+                    <div class="form-group">
+                        <label for="APP_ID">APP ID:</label>
+                        <input type="text" class="form-control" id="APP_ID" name="APP_ID" placeholder="Enter App ID" required>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="status">Order Status:</label>
-                            <input type="text" class="form-control" id="status" name="status" placeholder="Enter order status (optional)">
-                        </div>
+                    <div class="form-group">
+                        <label for="BUSINESS_ID">BUSINESS ID:</label>
+                        <input type="text" class="form-control" id="BUSINESS_ID" name="BUSINESS_ID" placeholder="Enter Business ID" required>
+                    </div>
 
-                        <div class="form-group col-md-3">
-                            <label for="limit">Limit:</label>
-                            <input type="number" class="form-control" id="limit" name="limit" placeholder="Limit (e.g., 50)">
-                        </div>
+                    <div class="form-group">
+                        <label for="fromDate">From Date:</label>
+                        <input type="date" class="form-control" id="fromDate" name="fromDate">
+                    </div>
 
-                        <div class="form-group col-md-3">
-                            <label for="page">Page:</label>
-                            <input type="number" class="form-control" id="page" name="page" placeholder="Page number">
-                        </div>
+                    <div class="form-group">
+                        <label for="toDate">To Date:</label>
+                        <input type="date" class="form-control" id="toDate" name="toDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="page">Page:</label>
+                        <input type="number" class="form-control" id="page" name="page" placeholder="Enter page number (optional)">
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block mt-3">Sync Order</button>

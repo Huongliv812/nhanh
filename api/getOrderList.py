@@ -1,33 +1,27 @@
 import requests
 
-def get_order_list(haravan_token, status=None, created_at_min=None, created_at_max=None, limit=None, page=None, order=None):
-    url = 'https://apis.haravan.com/com/orders.json'
+def get_order_list(nhanh_token, appId, businessId, fromDate=None, toDate=None, page=None):
+    url = 'https://open.nhanh.vn/api/order/index'
     
-    headers = {
-        'Authorization': f'Bearer {haravan_token}',
-        'Content-Type': 'application/json'
+    # Dữ liệu gửi đi dưới dạng form
+    data = {
+        "version": "2.0",
+        "appId": appId,
+        "businessId": businessId,
+        "accessToken": nhanh_token
     }
 
-    # Tham số truy vấn
-    params = {}
-
-    if status:
-        params['status'] = status
-    if created_at_min:
-        params['created_at_min'] = created_at_min
-    if created_at_max:
-        params['created_at_max'] = created_at_max
-    if limit:
-        params['limit'] = limit
+    # Chỉ thêm fromDate, toDate và page nếu chúng có giá trị
+    if fromDate:
+        data["fromDate"] = fromDate
+    if toDate:
+        data["toDate"] = toDate
     if page:
-        params['page'] = page
-    if order:
-        params['order'] = order
+        data["page"] = page
 
-    # Gọi API
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.post(url, data=data)
 
-    # Kiểm tra response
+    # Kiểm tra kết quả
     if response.status_code == 200:
         print("Order list retrieved successfully.")
         return response.json()  # Trả về JSON chứa danh sách đơn hàng

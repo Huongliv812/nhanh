@@ -8,88 +8,108 @@ from function.customer_process import process_customer
 # Chỉ định thư mục chứa template là 'view'
 app = Flask(__name__, template_folder='view')
 
+# Trang chọn loại đồng bộ
 @app.route('/', methods=['GET', 'POST'])
 def choose_type():
     if request.method == 'POST':
-        # Lấy lựa chọn từ form
         api_type = request.form['api_type']
-        # Chuyển hướng đến trang tương ứng dựa trên lựa chọn
         if api_type == 'get_order':
             return redirect(url_for('order_form'))
         elif api_type == 'get_customer':
             return redirect(url_for('contact_form'))
-    # Render trang chọn loại sync
     return render_template('choose_type.html')
 
+# Form để đồng bộ customer
 @app.route('/contact_form', methods=['GET', 'POST'])
 def contact_form():
     if request.method == 'POST':
-        # Lấy dữ liệu từ form
-        APP_TOKEN = request.form['APP_TOKEN']
-        PERSONAL_BASE_TOKEN = request.form['PERSONAL_BASE_TOKEN']
-        TABLE_ID = request.form['TABLE_ID']
-        HARAVAN_TOKEN = request.form['HARAVAN_TOKEN']
+        APP_TOKEN = request.form.get('APP_TOKEN')
+        PERSONAL_BASE_TOKEN = request.form.get('PERSONAL_BASE_TOKEN')
+        TABLE_ID = request.form.get('TABLE_ID')
+        NHANH_TOKEN = request.form.get('NHANH_TOKEN')
+        APP_ID = request.form.get('APP_ID')
+        BUSINESS_ID = request.form.get('BUSINESS_ID')
 
-        # Lấy các tham số bổ sung từ form
-        created_at_min = request.form.get('created_at_min')
-        created_at_max = request.form.get('created_at_max')
-        limit = request.form.get('limit')
+        # Kiểm tra nếu thiếu APP_TOKEN hoặc PERSONAL_BASE_TOKEN
+        if not APP_TOKEN or not PERSONAL_BASE_TOKEN:
+            return "APP_TOKEN và PERSONAL_BASE_TOKEN không được bỏ trống.", 400
 
-        # Gọi API Haravan để lấy danh sách khách hàng
+        # Lấy page, nếu không có thì mặc định là None
+        page = request.form.get('page')
+        if page:
+            try:
+                page = int(page)
+            except ValueError:
+                return "Invalid page number.", 400
+
+        # Gọi API Nhanh.vn để lấy danh sách customer
         customer_data = get_contact_list(
-            haravan_token=HARAVAN_TOKEN,
-            created_at_min=created_at_min,
-            created_at_max=created_at_max,
-            limit=limit
+            nhanh_token=NHANH_TOKEN,
+            appId=APP_ID,
+            businessId=BUSINESS_ID,
+            page=page
         )
 
         if customer_data:
             # Gửi dữ liệu vào Base
-            client = BaseClient.builder().app_token(APP_TOKEN).personal_base_token(PERSONAL_BASE_TOKEN).build()
-            process_customer(client, TABLE_ID, customer_data)
-            return "Customer data successfully synced to Base."
+            try:
+                client = BaseClient.builder().app_token(APP_TOKEN).personal_base_token(PERSONAL_BASE_TOKEN).build()
+                process_customer(client, TABLE_ID, customer_data)
+                return "Customer data successfully synced to Base."
+            except Exception as e:
+                print(f"Error processing customer: {e}")
+                return "Failed to sync customer data.", 500
         else:
-            print("Failed to sync customers.")
-            return "Failed to sync customers."
+            return "Failed to retrieve customer data.", 400
 
     return render_template('contact_form.html')
 
+# Form để đồng bộ order
 @app.route('/order_form', methods=['GET', 'POST'])
 def order_form():
     if request.method == 'POST':
-        # Lấy dữ liệu từ form
-        APP_TOKEN = request.form['APP_TOKEN']
-        PERSONAL_BASE_TOKEN = request.form['PERSONAL_BASE_TOKEN']
-        TABLE_ID = request.form['TABLE_ID']
-        HARAVAN_TOKEN = request.form['HARAVAN_TOKEN']
+        APP_TOKEN = request.form.get('APP_TOKEN')
+        PERSONAL_BASE_TOKEN = request.form.get('PERSONAL_BASE_TOKEN')
+        TABLE_ID = request.form.get('TABLE_ID')
+        NHANH_TOKEN = request.form.get('NHANH_TOKEN')
+        APP_ID = request.form.get('APP_ID')
+        BUSINESS_ID = request.form.get('BUSINESS_ID')
 
-        # Lấy các tham số bổ sung từ form
-        status = request.form.get('status')
-        created_at_min = request.form.get('created_at_min')
-        created_at_max = request.form.get('created_at_max')
-        limit = request.form.get('limit')
+        # Kiểm tra nếu thiếu APP_TOKEN hoặc PERSONAL_BASE_TOKEN
+        if not APP_TOKEN or not PERSONAL_BASE_TOKEN:
+            return "APP_TOKEN và PERSONAL_BASE_TOKEN không được bỏ trống.", 400
+
+        # Lấy fromDate, toDate và page, có thể là None
+        fromDate = request.form.get('fromDate')
+        toDate = request.form.get('toDate')
         page = request.form.get('page')
-        order = request.form.get('order')
+        if page:
+            try:
+                page = int(page)
+            except ValueError:
+                return "Invalid page number.", 400
 
-        # Gọi API Haravan để lấy danh sách đơn hàng
+        # Gọi API Nhanh.vn để lấy danh sách order
         order_data = get_order_list(
-            haravan_token=HARAVAN_TOKEN,
-            status=status,
-            created_at_min=created_at_min,
-            created_at_max=created_at_max,
-            limit=limit,
-            page=page,
-            order=order
+            nhanh_token=NHANH_TOKEN,
+            appId=APP_ID,
+            businessId=BUSINESS_ID,
+            fromDate=fromDate,
+            toDate=toDate,
+            page=page
         )
 
         if order_data:
             # Gửi dữ liệu vào Base
-            client = BaseClient.builder().app_token(APP_TOKEN).personal_base_token(PERSONAL_BASE_TOKEN).build()
-            process_order(client, TABLE_ID, order_data)
-            return "Order data successfully synced to Base."
+            try:
+                client = BaseClient.builder().app_token(APP_TOKEN).personal_base_token(PERSONAL_BASE_TOKEN).build()
+                process_order(client, TABLE_ID, order_data)
+                return "Order data successfully synced to Base."
+            except Exception as e:
+                print(f"Error processing order: {e}")
+                return "Failed to sync order data.", 500
         else:
-            print("Failed to sync orders.")
-            return "Failed to sync orders."
+            return "Failed to retrieve order data.", 400
 
     return render_template('order_form.html')
 

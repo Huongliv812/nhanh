@@ -1,27 +1,30 @@
 import requests
 
-def get_contact_list(haravan_token, created_at_min=None, created_at_max=None, limit=None):
-    url = 'https://apis.haravan.com/com/customers.json'
+def get_contact_list(nhanh_token, appId, businessId, page=None, icpp=None):
+    url = 'https://open.nhanh.vn/api/customer/search'
     
-    headers = {
-        'Authorization': f'Bearer {haravan_token}',
-        'Content-Type': 'application/json'
+    # Dữ liệu gửi đi dưới dạng form
+    data = {
+        "version": "2.0",
+        "appId": appId,
+        "businessId": businessId,
+        "accessToken": nhanh_token
     }
 
-    # Tham số truy vấn
-    params = {}
+    # Chỉ thêm page và icpp nếu chúng có giá trị
+    query_data = {}
+    if page:
+        query_data["page"] = page
+    if icpp:
+        query_data["icpp"] = icpp
 
-    if created_at_min:
-        params['created_at_min'] = created_at_min
-    if created_at_max:
-        params['created_at_max'] = created_at_max
-    if limit:
-        params['limit'] = limit
+    # Chuyển đổi query_data thành chuỗi JSON và thêm vào 'data'
+    if query_data:
+        data["data"] = str(query_data).replace("'", '"')
 
-    # Gọi API
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.post(url, data=data)
 
-    # Kiểm tra response
+    # Kiểm tra kết quả
     if response.status_code == 200:
         print("Customer list retrieved successfully.")
         return response.json()  # Trả về JSON chứa danh sách khách hàng

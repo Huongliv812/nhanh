@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,11 +7,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-
 <body>
     <div class="container mt-5">
         <div class="card shadow">
-            <div class="card-header bg-success text-white">
+            <div class="card-header bg-primary text-white">
                 <h2>Sync Customer</h2>
             </div>
             <div class="card-body">
@@ -32,30 +31,28 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="HARAVAN_TOKEN">HARAVAN TOKEN:</label>
-                        <input type="text" class="form-control" id="HARAVAN_TOKEN" name="HARAVAN_TOKEN" placeholder="Enter Haravan Token" required>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="created_at_min">Created After (YYYY-MM-DD):</label>
-                            <input type="date" class="form-control" id="created_at_min" name="created_at_min">
-                        </div>
-
-                        <div class="form-group col-md-6">
-                            <label for="created_at_max">Created Before (YYYY-MM-DD):</label>
-                            <input type="date" class="form-control" id="created_at_max" name="created_at_max">
-                        </div>
+                        <label for="NHANH_TOKEN">NHANH TOKEN:</label>
+                        <input type="text" class="form-control" id="NHANH_TOKEN" name="NHANH_TOKEN" placeholder="Enter Nhanh.vn Token" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="limit">Limit:</label>
-                        <input type="number" class="form-control" id="limit" name="limit" placeholder="Limit (e.g., 50)">
+                        <label for="APP_ID">APP ID:</label>
+                        <input type="text" class="form-control" id="APP_ID" name="APP_ID" placeholder="Enter App ID" required>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-block mt-3">Sync Customer</button>
+                    <div class="form-group">
+                        <label for="BUSINESS_ID">BUSINESS ID:</label>
+                        <input type="text" class="form-control" id="BUSINESS_ID" name="BUSINESS_ID" placeholder="Enter Business ID" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="page">Page:</label>
+                        <input type="number" class="form-control" id="page" name="page" placeholder="Enter page number (optional)">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-3">Sync Customer</button>
                     <div id="loading" class="text-center mt-3" style="display:none;">
-                        <span class="spinner-border text-success"></span> Loading...
+                        <span class="spinner-border text-primary"></span> Loading...
                     </div>
                 </form>
 
@@ -74,10 +71,9 @@
                     url: '/contact_form', // URL mà form POST đến
                     type: 'POST',
                     data: $(this).serialize(), // Lấy tất cả dữ liệu từ form
-                    success: function(response){
+                    success: function(){
                         $('#loading').hide(); // Ẩn "Loading..." khi hoàn tất
-                        $('#result').html(response); // Hiển thị kết quả trả về trên trang
-                        console.log(response); // Ghi kết quả ra console để debug
+                        $('#result').html('Sync complete'); // Hiển thị thông báo thành công
                     },
                     error: function(error){
                         $('#loading').hide();
